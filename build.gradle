@@ -1,7 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.1.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+	id 'groovy'
 }
 
 group = 'com.baylorw'
@@ -9,30 +10,83 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+}
+
+ext {
+    groovyVersion = '2.5.5'
+    spockVersion = '1.2-groovy-2.5'
+    swaggerVersion = '2.9.2'
 }
 
 dependencies {
-	//--- Spring
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-	//--- Utils
-	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    //--- Spring
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	//--- Testing
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+//	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+//		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+//	}
+	testImplementation("org.codehaus.groovy:groovy-all:${groovyVersion}")
+	testImplementation("org.spockframework:spock-core:${spockVersion}")
+	testImplementation("org.spockframework:spock-spring:${spockVersion}")
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+
+	//--- Documentation
+	implementation group: 'io.springfox', name: 'springfox-swagger2', version: "${swaggerVersion}"
+	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: "${swaggerVersion}"
+
+	//----------
+    //--- Utils
+	//----------
+
+	//--- Configuration Processor: Lets IntelliJ know about stuff in (and do autocompletion for) application.properties.
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	//--- Freemarker template engine for generating code.
+//    implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+	implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.30'
+
+	//--- JavaParser: Want to know which methods, classes, etc. are in source code? This library can tell you.
+	implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.15.13'
+
+	//--- Lombok to save us from typing getters.
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+	//--- RestTemplate Logger. Logs the actual output sent by RestTemplate.
+	//---   Useful for seeing actual JSON payloads sent, which Spring oddly can't do.
+	implementation 'org.hobsoft.spring:spring-rest-template-logger:2.0.0'
+}
+
+sourceSets {
+	main {
+		java.srcDirs += 'src/main/java'
+	}
+	test {
+		groovy.srcDirs += ["src/test/unit/groovy"]
+		resources.srcDir 'src/test/resources'
+	}
+	integration {
+		groovy.srcDirs += ["src/test/integration/groovy"]
+		resources.srcDir 'src/test/resources'
+
+		compileClasspath += main.output + test.output
+		runtimeClasspath += main.output + test.output
 	}
 }
 
-test {
-	useJUnitPlatform()
+configurations {
+	integrationCompile.extendsFrom testCompile
+}
+
+task integrationTest(type: Test) {
+	testClassesDirs = sourceSets.integration.output
+	classpath = sourceSets.integration.runtimeClasspath
 }

@@ -1,0 +1,14 @@
+test-generator:
+    template-directory: src/main/resources/templates
+
+logging:
+    level:
+        root: INFO
+        org:
+            hobsoft:
+                spring:
+                    resttemplatelogger:
+                        LoggingCustomizer: DEBUG  # Set to DEBUG to see JSON payloads sent/received on REST calls
+
+swagger:
+    enable: true
