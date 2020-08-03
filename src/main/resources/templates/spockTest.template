@@ -4,41 +4,41 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 class ${className}Spec extends Specification {
-    ${className} ${classNameCamel}
+	${className} ${classNameCamel}
 
 	<#list autowires as autowire>
 	${autowire.type} ${autowire.name} = Mock()
 	</#list>
 
-    def setup() {
-        ${classNameCamel} = new ${className} (
-            <#list autowires as autowire>
-            ${autowire.name}: ${autowire.name}<#if autowire_has_next>, </#if>
-            </#list>
-        )
-    }
+	def setup() {
+		${classNameCamel} = new ${className} (
+			<#list autowires as autowire>
+			${autowire.name}: ${autowire.name}<#if autowire_has_next>, </#if>
+			</#list>
+		)
+	}
 
 	<#list methods as method>
-    ${method.comment!""}
-    // ${method.signature}
-    @Unroll
-    def '${method.name} #name'()
-    {
-        given:
-        <#list method.parameters as parameter>
-        ${parameter.type} ${parameter.name} = null // Use this OR where, not both
-        </#list>
+	${method.comment!""}
+	// ${method.signature}
+	@Unroll
+	def '${method.name} #name'()
+	{
+		given:
+		<#list method.parameters as parameter>
+		${parameter.type} ${parameter.name} = null // Use this OR where, not both
+		</#list>
 
-        when:
-        ${method.returnType} actual = ${classNameCamel}.${method.name}(<#list method.parameters as parameter>${parameter.name}<#if parameter_has_next>, </#if></#list>)
+		when:
+		${method.returnType} actual = ${classNameCamel}.${method.name}(<#list method.parameters as parameter>${parameter.name}<#if parameter_has_next>, </#if></#list>)
 
-        then:
-        actual == expected
-        false  // fail test, remove when you finish writing the test
+		then:
+		actual == expected
+		false  // fail test, remove when you finish writing the test
 
-        where:
-        name          |<#list method.parameters as parameter> ${parameter.name} |</#list>| expected
-        'test 1 name' |<#list method.parameters as parameter> null |</#list>| null
-    }
+		where:
+		name          |<#list method.parameters as parameter> ${parameter.name} |</#list>| expected
+		'test 1 name' |<#list method.parameters as parameter> null |</#list>| null
+	}
 	</#list>
 }
