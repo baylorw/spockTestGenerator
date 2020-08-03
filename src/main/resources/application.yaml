@@ -1,5 +1,6 @@
 test-generator:
     template-directory: src/main/resources/templates
+    test-template: spockTest.template
 
 logging:
     level:

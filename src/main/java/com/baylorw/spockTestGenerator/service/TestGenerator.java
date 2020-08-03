@@ -26,21 +26,20 @@ public class TestGenerator
 {
 	private static Logger logger = LoggerFactory.getLogger(TestGenerator.class);
 
+
 	private Configuration templateEngine;
 
 	@Value("${test-generator.template-directory}")
 	private String testGeneratorTemplateDirectory;
+
+	@Value("${test-generator.test-template}")
+	private String templateName;
 
 
 	@PostConstruct
 	public void initialization()
 	{
 		initializeTemplateEngine();
-	}
-
-	private Configuration getTemplateEngine()
-	{
-		return templateEngine;
 	}
 
 	public String createTests(String codeToTest)
@@ -102,16 +101,15 @@ public class TestGenerator
 		return model;
 	}
 
-
 	private String fillInTemplate(Map<String, Object> model)
 	{
 		try
 		{
-			Template template = getTemplateEngine().getTemplate("spockTest.template");
+			Template template = templateEngine.getTemplate(templateName);
 			StringWriter stringWriter = new StringWriter();
 			template.process(model, stringWriter);
-			String buildFile = stringWriter.toString();
-			return buildFile;
+			String generatedCode = stringWriter.toString();
+			return generatedCode;
 		} catch (Exception e)
 		{
 			logger.error("Error filling in template. error={}", e.getMessage(), e);
