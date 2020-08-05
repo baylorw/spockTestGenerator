@@ -130,7 +130,6 @@ public class TestGenerator
 			templateEngine = new Configuration(Configuration.VERSION_2_3_30);
 			File templatesDirectory = new File(testGeneratorTemplateDirectory);
 			templateEngine.setDirectoryForTemplateLoading(templatesDirectory);
-			templateEngine.setDefaultEncoding("UTF-8");
 		} catch (IOException e)
 		{
 			String templateDirectoryFQN = System.getProperty("user.dir") + "/" + testGeneratorTemplateDirectory;
